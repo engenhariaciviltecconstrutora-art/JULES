@@ -1,0 +1,13 @@
+
+> erp-app@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+✓ Ready in 497ms
+
+ GET / 200 in 659ms (next.js: 268ms, application-code: 391ms)
+ GET /producao 200 in 83ms (next.js: 32ms, application-code: 51ms)
+ GET / 200 in 99ms (next.js: 5ms, application-code: 94ms)
+ GET /producao 200 in 32ms (next.js: 4ms, application-code: 29ms)
