@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model TipoPeca {
+  id                String   @id @default(cuid())
+  nome              String   @unique
+  tempoCuraPadrao   Int      @default(7)
+  pecas             Peca[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Peca {
+  id              String    @id @default(cuid())
+  codigo          String    @unique
+  tipoPecaId      String
+  tipo            TipoPeca  @relation(fields: [tipoPecaId], references: [id])
+  dataProducao    DateTime  @default(now())
+  status          String    @default("PRODUZIDA") // PRODUZIDA, EM_CURA, APTA, RETIRADA
+  clienteObra     String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model SolicitacaoCompra {
+  id              String    @id @default(cuid())
+  requisitante    String
+  descricao       String
+  dataSolicitacao DateTime  @default(now())
+  status          String    @default("PENDENTE") // PENDENTE, EM_COTACAO, FINALIZADA, CANCELADA
+  cotacoes        Cotacao[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Cotacao {
+  id                  String            @id @default(cuid())
+  solicitacaoId       String
+  solicitacao         SolicitacaoCompra @relation(fields: [solicitacaoId], references: [id])
+  fornecedor          String
+  preco               Float
+  prazoEntrega        Int
+  status              String            @default("EM_ANALISE") // EM_ANALISE, APROVADA, REJEITADA
+  pedidoCompra        PedidoCompra?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+}
+
+model PedidoCompra {
+  id              String        @id @default(cuid())
+  cotacaoId       String        @unique
+  cotacao         Cotacao       @relation(fields: [cotacaoId], references: [id])
+  autorizadoPor   String?
+  dataAutorizacao DateTime?
+  status          String        @default("AGUARDANDO_AUTORIZACAO") // AGUARDANDO_AUTORIZACAO, AUTORIZADO, REJEITADO, CONCLUIDO
+  notaFiscal      NotaFiscal?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model NotaFiscal {
+  id              String      @id @default(cuid())
+  pedidoId        String      @unique
+  pedido          PedidoCompra @relation(fields: [pedidoId], references: [id])
+  numero          String
+  dataEmissao     DateTime
+  valor           Float
+  despesa         Despesa?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model Despesa {
+  id              String        @id @default(cuid())
+  notaFiscalId    String?       @unique
+  notaFiscal      NotaFiscal?   @relation(fields: [notaFiscalId], references: [id])
+  valor           Float
+  vencimento      DateTime
+  status          String        @default("PENDENTE") // PENDENTE, PAGO, ATRASADO, CANCELADO
+  descricao       String
+  categoria       String        @default("Suprimentos")
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
